@@ -1,6 +1,7 @@
 require 'algoliasearch'
 require "rooftop/algolia_search/version"
 require "rooftop/algolia_search/post_indexing"
+require "rooftop/algolia_search/post_searching"
 if defined?(Rails)
   require "rooftop/algolia_search/engine"
 end
@@ -20,6 +21,7 @@ module Rooftop
       @included_classes ||= []
       @included_classes << base unless @included_classes.include?(base)
       base.include PostIndexing
+      base.include PostSearching
     end
 
     class Configuration
