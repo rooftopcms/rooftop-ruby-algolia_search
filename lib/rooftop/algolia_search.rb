@@ -1,3 +1,4 @@
+require 'algoliasearch'
 require "rooftop/algolia_search/version"
 require "rooftop/algolia_search/post_indexing"
 if defined?(Rails)
@@ -27,7 +28,7 @@ module Rooftop
       attr_reader :index_connection, :search_connection
 
       def configure_connection
-        Algolia.init( application_id: @application_id,
+        ::Algolia.init( application_id: @application_id,
                       api_key: @index_api_key)
       end
     end
