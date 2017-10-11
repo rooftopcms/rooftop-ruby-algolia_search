@@ -37,7 +37,12 @@ module Rooftop
           @search_fields ||= []
           fields.each {|f| @search_fields << f}
         end
-        alias_method :add_search_field, :add_search_fields
+
+        def add_search_field(field, options = {})
+          @search_fields ||= []
+
+          @search_fields << [field, options]
+        end
 
         def search_fields
           @search_fields ||= []
@@ -89,15 +94,21 @@ module Rooftop
       def to_search_index_parameters
         self.class.search_fields.inject({}) do |hash, fields|
           hash[:objectID] = self.id
-          fields.each do |field|
-            begin
-              hash[field] = self.send(field)
-            rescue NoMethodError
-              if self.has_field?(field)
-                hash[field] = self.fields.send(field)
+
+          if fields.last.is_a? Proc
+            hash[fields.first] = fields.last.call(self)
+          else
+            fields.each do |field|
+              begin
+                hash[field] = self.send(field)
+              rescue NoMethodError
+                if self.has_field?(field)
+                  hash[field] = self.fields.send(field)
+                end
               end
             end
           end
+
           hash
         end
       end
