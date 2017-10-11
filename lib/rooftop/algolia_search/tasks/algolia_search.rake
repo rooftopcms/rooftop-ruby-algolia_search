@@ -38,7 +38,7 @@ namespace :rooftop do
       ::Rails.application.eager_load!
       Rooftop::AlgoliaSearch.included_classes.each do |klass|
         puts "Reindexing #{klass}"
-        klass.search_index.delete
+        klass.search_index.clear
         klass.reindex_entities(klass.all)
         puts "Done\n"
       end
