@@ -4,8 +4,10 @@ module Rooftop
 
       isolate_namespace Rooftop::AlgoliaSearch
 
-      config.before_initialize do
-
+      initializer "add_helpers" do
+        ActiveSupport.on_load(:action_controller) do
+          include Rooftop::AlgoliaSearch::FacetHelper
+        end
       end
 
       rake_tasks do
