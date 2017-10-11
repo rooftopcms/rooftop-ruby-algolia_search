@@ -17,13 +17,16 @@ module Rooftop
     end
 
     def self.included(base)
+      @included_classes ||= []
+      @included_classes << base unless @included_classes.include?(base)
       base.include PostIndexing
     end
 
     class Configuration
       attr_accessor :index_api_key,
                     :search_api_key,
-                    :application_id
+                    :application_id,
+                    :settings
 
       attr_reader :index_connection, :search_connection
 
@@ -35,6 +38,10 @@ module Rooftop
 
     class Error < StandardError
 
+    end
+
+    def self.included_classes
+      @included_classes
     end
   end
 end

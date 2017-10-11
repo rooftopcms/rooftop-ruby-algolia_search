@@ -13,11 +13,19 @@ module Rooftop
       end
 
       module ClassMethods
-        attr_reader :search_index_name
+        attr_reader :search_index_name, :search_index_settings
 
         def search_index_name=(name)
           @search_index_name = name
           setup_index_name!
+        end
+
+        def search_index_settings=(settings)
+          @search_index_settings ||= settings
+        end
+
+        def setup_index_settings!
+          search_index.set_settings(@search_index_settings) unless @search_index_settings.nil?
         end
 
         def setup_index_name!
@@ -39,21 +47,27 @@ module Rooftop
           reindex_entities(all.to_a)
         end
 
-        def reindex_entities(*entities)
+        def reindex_entities(entities)
+          entities = Array.wrap(entities)
           search_index.add_objects(entities.collect(&:to_search_index_parameters))
         end
 
         alias_method :reindex_entity, :reindex_entities
 
-        def deindex_entities(*entities)
+        def deindex_entities(entities)
+          entities = Array.wrap(entities)
           search_index.delete_objects(entities.collect(&:id))
         end
 
         alias_method :deindex_entity, :deindex_entities
 
+        def clear_index!
+          search_index.clear_index
+        end
+
 
         def search_index
-          Algolia::Index.new(@search_index_name)
+          @search_index ||= Algolia::Index.new(@search_index_name)
         end
 
       end
