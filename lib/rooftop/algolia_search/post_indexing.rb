@@ -13,7 +13,7 @@ module Rooftop
       end
 
       module ClassMethods
-        attr_reader :search_index_name, :search_index_settings
+        attr_reader :search_index_name, :search_index_settings, :search_fields
 
         def search_index_name=(name)
           @search_index_name = name
@@ -38,10 +38,10 @@ module Rooftop
           fields.each {|f| @search_fields << f}
         end
 
-        def add_search_field(field, options = {})
+        def add_search_field(field, options = nil)
           @search_fields ||= []
 
-          @search_fields << [field, options]
+          @search_fields << [field, options].compact
         end
 
         def search_fields
@@ -86,6 +86,8 @@ module Rooftop
           deindex!
         end
       end
+
+      alias :index! :reindex!
 
       def deindex!
         self.class.deindex_entity(self)
