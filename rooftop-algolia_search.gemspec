@@ -24,6 +24,6 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rake", "~> 10.0"
 
   spec.add_dependency "algoliasearch", "~> 1"
-  spec.add_dependency "rooftop", "~> 0.1"
+  spec.add_dependency "rooftop", "~> 1"
   spec.add_dependency "activesupport", ">= 4.2", "< 6"
 end
