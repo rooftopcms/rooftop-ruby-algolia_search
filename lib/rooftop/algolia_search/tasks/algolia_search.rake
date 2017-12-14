@@ -36,14 +36,18 @@ namespace :rooftop do
       end
 
       ::Rails.application.eager_load!
+
+      # clear the indexes first, so that we're not
+      # clobbering it each time we index an object type (fixme: klass.search_index(type: klass) - to only remove those object types?)
+      Rooftop::AlgoliaSearch.included_classes.each do |klass|
+        klass.search_index.clear
+      end
+
       Rooftop::AlgoliaSearch.included_classes.each do |klass|
         puts "Reindexing #{klass}"
-        klass.search_index.clear
         klass.reindex_entities(klass.all)
         puts "Done\n"
       end
     end
   end
 end
-
-
