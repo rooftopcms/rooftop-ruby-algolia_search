@@ -13,7 +13,7 @@ module Rooftop
       end
 
       module ClassMethods
-        attr_reader :search_index_name, :search_index_settings, :search_fields
+        attr_reader :search_index_name, :search_index_settings, :search_fields, :search_index_replica_names
 
         def search_index_name=(name)
           @search_index_name = name
@@ -22,10 +22,24 @@ module Rooftop
 
         def search_index_settings=(settings)
           @search_index_settings ||= settings
+          end
+
+        def search_index_replica_names=(settings)
+          @search_index_replica_names ||= settings
         end
 
+
         def setup_index_settings!
-          search_index.set_settings(@search_index_settings) unless @search_index_settings.nil?
+          raise ArgumentError, "No search index settings have been defined. Call self.search_index_settings = on the class you've mixed Rooftop::AlgoliaSearch into." if @search_index_settings.nil?
+          if replica_indexes.any?
+            # we need to set the settings for replicas too
+            replica_indexes.each do |index|
+              index.set_settings(@search_index_settings.merge(ranking: Array.wrap(@search_index_replica_names[index.name.to_sym])))
+            end
+            search_index.set_settings(@search_index_settings.merge({replicas: replica_indexes.collect(&:name)}),forwardToReplicas: true)
+          else
+            search_index.set_settings(@search_index_settings)
+          end
         end
 
         def setup_index_name!
@@ -73,6 +87,17 @@ module Rooftop
 
         def search_index
           @search_index ||= Algolia::Index.new(@search_index_name)
+        end
+
+        #Iterate over replica names creating new indexes in memory (memoized)
+        def replica_indexes
+          if @search_index_replica_names.is_a?(Hash) && @search_index_replica_names.any?
+            @search_index_replicas = @search_index_replica_names.collect do |name, sort|
+              Algolia::Index.new(name.to_s)
+            end
+          else
+            []
+          end
         end
 
       end
