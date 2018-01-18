@@ -34,6 +34,7 @@ module Rooftop
           if replica_indexes.any?
             # we need to set the settings for replicas too
             replica_indexes.each do |index|
+              @search_index_settings.except!(:customRanking) if Array.wrap(@search_index_replica_names[index.name.to_sym]).any?
               index.set_settings(@search_index_settings.merge(ranking: Array.wrap(@search_index_replica_names[index.name.to_sym])))
             end
             search_index.set_settings(@search_index_settings.merge({replicas: replica_indexes.collect(&:name)}),forwardToReplicas: true)
